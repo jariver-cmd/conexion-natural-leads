@@ -14,8 +14,8 @@ const REQUIRED_ENV_VARS = [
   'AIRTABLE_API_KEY',
   'AIRTABLE_BASE_ID',
   'AIRTABLE_TABLE_NAME',
-  'GMAIL_USER',
-  'GMAIL_APP_PASSWORD',
+  'EMAIL_RELAY_URL',
+  'EMAIL_RELAY_SECRET',
 ];
 const missingEnvVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
 if (missingEnvVars.length > 0) {
