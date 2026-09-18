@@ -7,8 +7,16 @@ const { validateLeadInput } = require('./lib/validators');
 const { scrapeWebsite } = require('./lib/scraper');
 const { scoreLead } = require('./lib/gemini');
 const { createLead, updateLead } = require('./lib/airtable');
+const { sendWelcomeEmail } = require('./lib/mailer');
 
-const REQUIRED_ENV_VARS = ['GEMINI_API_KEY', 'AIRTABLE_API_KEY', 'AIRTABLE_BASE_ID', 'AIRTABLE_TABLE_NAME'];
+const REQUIRED_ENV_VARS = [
+  'GEMINI_API_KEY',
+  'AIRTABLE_API_KEY',
+  'AIRTABLE_BASE_ID',
+  'AIRTABLE_TABLE_NAME',
+  'GMAIL_USER',
+  'GMAIL_APP_PASSWORD',
+];
 const missingEnvVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
 if (missingEnvVars.length > 0) {
   console.warn(`[config] Faltan variables de entorno: ${missingEnvVars.join(', ')}. Revisa tu archivo .env.`);
@@ -77,6 +85,10 @@ app.post('/api/leads', async (req, res) => {
     success: true,
     message: 'Gracias, hemos recibido tu información. Nos pondremos en contacto pronto.',
   });
+
+  sendWelcomeEmail(data)
+    .then(() => console.log(`[leads] ${record.id}: correo de bienvenida enviado a ${data.correo}`))
+    .catch((err) => console.error(`[leads] ${record.id}: no se pudo enviar el correo de bienvenida — ${err.message}`));
 
   processLeadAsync(record.id, data).catch((err) => {
     console.error(`[leads] ${record.id}: error inesperado en el procesamiento asíncrono — ${err.message}`);
